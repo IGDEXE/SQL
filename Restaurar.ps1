@@ -1,6 +1,21 @@
 # Fazer Backup do SQL
 # Ivo Dias
 
+# Funcao limpar tela
+function Limpar-GUI {
+    # Limpa as caixas utilizadas
+    $txtServidor.Text = ""
+    $txtUsuario.Text = ""
+    $txtSenha.Text = ""
+    # Volta ao padrao inicial
+    $lblDiretorio.Visible = $false
+    $btnDiretorio.visible = $false
+    $lblArquivo.Visible = $false
+    $btnArquivo.visible = $false
+    $lblCaminho.Visible = $false
+    $lblRetorno.Text = ""
+}
+
 # Funcao para pegar a pasta
 Function Get-Folder {
     param (
@@ -30,7 +45,7 @@ Function Get-File($initialDirectory)
 # Formulario principal
 Add-Type -assembly System.Windows.Forms # Recebe a biblioteca
 $GUI = New-Object System.Windows.Forms.Form # Cria o formulario principal
-$GUI.Text ='DB - Restaurar Backup' # Titulo
+$GUI.Text ='DB - Assistente' # Titulo
 $GUI.AutoSize = $true # Configura para aumentar caso necessario
 $GUI.StartPosition = 'CenterScreen' # Inicializa no centro da tela
 
@@ -114,7 +129,7 @@ $GUI.Controls.Add($btnArquivo) # Adiciona ao formulario principal
 
 # Botao para fazer o procedimento
 $btnSQL = New-Object System.Windows.Forms.Button # Cria um botao
-$btnSQL.Location = New-Object System.Drawing.Size(5,150) # Define em qual coordenada da tela vai ser desenhado
+$btnSQL.Location = New-Object System.Drawing.Size(5,190) # Define em qual coordenada da tela vai ser desenhado
 $btnSQL.Size = New-Object System.Drawing.Size(300,25) # Define o tamanho
 $btnSQL.Text = "Fazer" # Define o texto
 $GUI.Controls.Add($btnSQL) # Adiciona ao formulario principal
@@ -139,15 +154,24 @@ $btnRestore.Size = New-Object System.Drawing.Size(100,18) # Define o tamanho
 $btnRestore.Text = "Restore" # Define o texto
 $GUI.Controls.Add($btnRestore) # Adiciona ao formulario principal
 
+# Label de exibicao do caminho
+$lblCaminho = New-Object System.Windows.Forms.Label # Cria a label
+$lblCaminho.Text = "Caminho selecionado: " # Coloca um texto em branco
+$lblCaminho.Visible = $false # Deixa invisivel na inicializacao
+$lblCaminho.Location  = New-Object System.Drawing.Point(0,140) # Define em qual coordenada da tela vai ser desenhado
+$lblCaminho.AutoSize = $true # Configura tamanho automatico
+$GUI.Controls.Add($lblCaminho) # Adiciona ao formulario principal
+
 # Label para receber o retorno do procedimento
-$lblResposta = New-Object System.Windows.Forms.Label # Cria a label
-$lblResposta.Text = "" # Coloca um texto em branco
-$lblResposta.Location  = New-Object System.Drawing.Point(0,190) # Define em qual coordenada da tela vai ser desenhado
-$lblResposta.AutoSize = $true # Configura tamanho automatico
-$GUI.Controls.Add($lblResposta) # Adiciona ao formulario principal
+$lblRetorno = New-Object System.Windows.Forms.Label # Cria a label
+$lblRetorno.Text = "" # Coloca um texto em branco
+$lblRetorno.Location  = New-Object System.Drawing.Point(0,155) # Define em qual coordenada da tela vai ser desenhado
+$lblRetorno.AutoSize = $true # Configura tamanho automatico
+$GUI.Controls.Add($lblRetorno) # Adiciona ao formulario principal
 
 # Evento do Botao Arquivo
 $btnRestore.Add_Click({
+    $GUI.Text ='DB - Fazer Backup' # Titulo
     $lblDiretorio.Visible = $false # Deixa invisivel
     $btnDiretorio.visible = $false # Deixa invisivel
     $lblArquivo.Visible = $true # Deixa visivel
@@ -156,6 +180,7 @@ $btnRestore.Add_Click({
 
 # Evento do Botao Backup
 $btnBackup.Add_Click({
+    $GUI.Text ='DB - Restaurar Backup' # Titulo    
     $lblArquivo.Visible = $false # Deixa invisivel
     $btnArquivo.visible = $false # Deixa invisivel
     $lblDiretorio.Visible = $true # Deixa visivel
@@ -171,13 +196,21 @@ $btnDiretorio.Add_Click({
     if ($opcao -eq "Drive") { $dominio = ".drive.com.br" }
     $servidor = "\\" + $txtServidor.Text + $dominio # Configura o nome do servidor
     $caminhoPasta = Get-Folder $servidor # Recebe a pasta onde o backup precisa ser feito
-    $lblResposta.Text = $caminhoPasta
+    $lblCaminho.visible = $true # Deixa visivel
+    $lblRetorno.Text = $caminhoPasta # Exibe o caminho selecionado
 })
 
 # Evento do Botao Restore
 $btnArquivo.Add_Click({
     $caminhoPasta = Get-File # Recebe a pasta onde o backup precisa ser feito
-    $lblResposta.Text = $caminhoPasta
+    $lblCaminho.visible = $true # Deixa visivel
+    $lblRetorno.Text = $caminhoPasta # Exibe o caminho selecionado
+})
+
+# Evento do Botao que faz o procedimento com SQL
+$btnSQL.Add_Click({
+    $lblRetorno.Text = "Aguarde, estamos fazendo os procedimentos necessarios"
+    Limpar-GUI # Volta a configuracao inicial
 })
 
 # Inicia o formulario
