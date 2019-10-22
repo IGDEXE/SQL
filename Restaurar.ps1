@@ -2,11 +2,15 @@
 # Ivo Dias
 
 # Funcao para pegar a pasta
-Function Get-Folder($initialDirectory)
-{
+Function Get-Folder {
+    param (
+        [parameter(position=0, Mandatory=$True)]
+        $servidor
+    )
     [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms") | Out-Null
     $OpenFileDialog = New-Object System.Windows.Forms.FolderBrowserDialog
-    $OpenFileDialog.rootfolder = "MyComputer"
+    #$OpenFileDialog.rootfolder = "MyComputer"
+    $OpenFileDialog.SelectedPath = "$servidor"
     $OpenFileDialog.ShowDialog() | Out-Null
     $caminhoPasta = $OpenFileDialog.SelectedPath
     return $caminhoPasta
@@ -160,7 +164,13 @@ $btnBackup.Add_Click({
 
 # Evento do Botao Diretorio
 $btnDiretorio.Add_Click({
-    $caminhoPasta = Get-Folder # Recebe a pasta onde o backup precisa ser feito
+    # Verifica dominio selecionado
+    $opcao = $cbxDominio.selectedItem
+    if ($opcao -eq "SeniorSolution") { $dominio = ".seniorsolution.com.br" }
+    if ($opcao -eq "ATT") { $dominio = ".att.com.br" }
+    if ($opcao -eq "Drive") { $dominio = ".drive.com.br" }
+    $servidor = "\\" + $txtServidor.Text + $dominio # Configura o nome do servidor
+    $caminhoPasta = Get-Folder $servidor # Recebe a pasta onde o backup precisa ser feito
     $lblResposta.Text = $caminhoPasta
 })
 
