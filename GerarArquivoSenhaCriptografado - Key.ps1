@@ -5,14 +5,14 @@
 Clear-Host
 Write-Host "Converter senha em arquivo seguro"
 try {
-    # Recebe os dados do cliente
+    # Recebe as informacoes necessarias
     $caminhoArquivo = Read-Host "Informe o caminho do arquivo"
-    $hash = Get-Date -Format SEC@ddMMyyyyssmm
+    $hash = Get-Date -Format SEC@ddMMyyyyssmm # Cria um identificador com base no dia e hora
     # Gera a chave
-    $KeyFile = "$caminhoArquivo\$hash.key"
-    $Key = New-Object Byte[] 32   # You can use 16 (128-bit), 24 (192-bit), or 32 (256-bit) for AES
-    [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($Key)
-    $Key | Out-File $KeyFile
+    $KeyFile = "$caminhoArquivo\$hash.key" # Define o caminho do arquivo
+    $Key = New-Object Byte[] 32   # Voce pode usar 16 (128-bit), 24 (192-bit), ou 32 (256-bit) para AES
+    [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($Key) # Cria a chave de criptografia
+    $Key | Out-File $KeyFile # Salva em um arquivo
     # Gera a senha
     Read-Host "Informe sua senha" -AsSecureString | ConvertFrom-SecureString -key $Key | Out-File "$caminhoArquivo\$hash.pass" # Gera a senha
     Write-Host "Arquivos gerados em: $caminhoArquivo"
